@@ -7,17 +7,17 @@ spring:
     import: "classpath:application.yml"
 
 confluence:
-  cert-name: "cert_confl.cer" #Имя сертификата с которым ходишь в конфлюенс
-  confluence-url: "https://confluence.moscow.alfaintra.net" #базовый адрес конфлюенса
-  confluence-space-key: "UP4ALL" #Спейс кей пространства в конфлюенсе
-  confluence-parent-page-id: "2317461280" # 2154245320
+  cert-name: "" #Имя сертификата с которым ходишь в конфлюенс
+  confluence-url: "" #базовый адрес конфлюенса
+  confluence-space-key: "" #Спейс кей пространства в конфлюенсе
+  confluence-parent-page-id: "" # 2154245320
   
 #influx-db:
 #  influxdb-url: "http://anketa-infra-lt:8086" #Базовый урл до тачки с инфлюксом
 #  database-name: gatling #Название базы где лежат метрики gatling/anketa
 
 vm:
-  vm-url: "http://vm.ankk8slt.moscow.alfaintra.net"
+  vm-url: ""
 
 jira:
   task-id: LOADTEST-23144 #ID задачи на тестирование в Jira
@@ -78,33 +78,33 @@ test-configuration:
     step-duration: 45 #Длительность полки
 
 performance-center:
-  pc-url: "http://lre/"
-  pc-domain: LT
-  pc-project: ANKETA
+  pc-url: ""
+  pc-domain: 
+  pc-project: 
 
 grafana:
-  grafana-url: "http://anketa-infra-lt:3000" #Адрес графаны
-  grafana-api-key: "eyJrIjoiaGJrekZCZWFIUllKNXhpUkwzRDZhMTBVWmZkcTJDa2wiLCJuIjoiZ3JhZmFuYUFwaSIsImlkIjoxfQ==" #API ключ для авторизации
+  grafana-url: "" #Адрес графаны
+  grafana-api-key: "" #API ключ для авторизации
   grafana-width: 1000 #Ширина графика
   grafana-height: 500 #Высота
-  prometheus-url: "http://vm.ankk8slt.moscow.alfaintra.net/select/0/prometheus"
+  prometheus-url: ""
   enviroment: kubernetes #либо kubernetes либо mesos. Флаг чем вы пользуетесь
   kubernetes:
     namespace-name: "load" #Неймспейс в котором лежит деплоймент
 
   groups:
     grafanaGroups:
-      - title: "Бизнес метрики"
-        dashboardName: "gatling-report"
-        dashboardUUID: "gatlingReport"
+      - title: ""
+        dashboardName: ""
+        dashboardUUID: ""
         panels:
           - 1221
           - 1223
           - 1225
         applications: ""
-      - title: "Нагрузка на систему"
-        dashboardName: "anketa-overview"
-        dashboardUUID: "gatling"
+      - title: ""
+        dashboardName: ""
+        dashboardUUID: ""
         panels:
           - 944
           - 939
@@ -112,23 +112,23 @@ grafana:
         applications: ""
         variables:
           kafka-topic:
-            - "topic-1"
-            - "topic-2"
+            - ""
+            - ""
           region:
-            - "eu-west"
-      - title: "Системные метрики"
-        dashboardName: "anketa-overview"
-        dashboardUUID: "gatling"
+            - ""
+      - title: ""
+        dashboardName: ""
+        dashboardUUID: ""
         panels:
           - 898
           - 899
           - 902
         applications:
-          - "alfaform-dc-app-api"
-          - "alfaform-dc-short-flow-api"
-      - title: "JVM метрики"
-        dashboardName: "anketa-overview"
-        dashboardUUID: "gatling"
+          - ""
+          - ""
+      - title: ""
+        dashboardName: ""
+        dashboardUUID: ""
         panels:
           - 900
           - 901
@@ -142,13 +142,13 @@ grafana:
           - 923
           - 976
         applications:
-          - "alfaform-dc-app-api"
-          - "alfaform-dc-short-flow-api"
+          - ""
+          - ""
         needPod: true #Флаг надо выгружать график отдельно для пода/инстанса или нет
 
-      - title: "Метрики Redis"
-        dashboardName: "redis-dc"
-        dashboardUUID: "e008bc3f-81a2-40f9-baf2-a33fd8dec7ec"
+      - title: ""
+        dashboardName: ""
+        dashboardUUID: ""
         panels:
           - 24
           - 33
@@ -159,42 +159,30 @@ grafana:
           - 13
           - 14
         applications:
-          - "ankdc-db-lt1.moscow.alfaintra.net:9379"
-          - "ankdc-db-lt2.moscow.alfaintra.net:9379"
-          - "ankdc-db-lt3.moscow.alfaintra.net:9379"
-      - title: "Утилизация БД"
-        dashboardName: "node-exporter-redis"
-        dashboardUUID: "rYdddlPWz"
+          - ""
+          - ""
+          - ""
+      - title: ""
+        dashboardName: ""
+        dashboardUUID: ""
         panels:
           - 77
           - 78
           - 74
           - 152
-#          - 229
-#          - 42
         applications:
-          - "ankdc-db-lt1.moscow.alfaintra.net:9100"
-          - "ankdc-db-lt2.moscow.alfaintra.net:9100"
-          - "ankdc-db-lt3.moscow.alfaintra.net:9100"
-#      - title: "Метрики PostgreSQL"
-#        dashboardName: "ank-dc-postgresexporter"
-#        dashboardUUID: "ankdcpostgres"
-#        panels:
-#          - 160
-#          - 156
-#          - 176
-#          - 3
-#        applications:
-#          - "ankdc-db-lt1.moscow.alfaintra.net:9187"
+          - ""
+          - ""
+          - ""
 
 
 fault-tolerance:
   enable: false
-  test-end-time: "2025-01-14 17:03:13"
-  load-level: "100"
+  test-end-time: ""
+  load-level: ""
 
   stages:
-    - fault-scenario-test-name: "/logistics-api"
-      fault-scenario-test-end: "2025-02-04 16:15:01"
-      fault-scenario-test-length: "15"
-      fault-scenario-stabilization-length: "15"
+    - fault-scenario-test-name: ""
+      fault-scenario-test-end: ""
+      fault-scenario-test-length: ""
+      fault-scenario-stabilization-length: ""
