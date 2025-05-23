@@ -1,0 +1,15 @@
+<configuration>
+
+    <!-- Определение аппендера console -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Настройка root-логгера -->
+    <root level="INFO">
+        <appender-ref ref="console"/> <!-- Ссылка на аппендер console -->
+    </root>
+
+</configuration>

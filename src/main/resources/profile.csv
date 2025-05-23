@@ -1,0 +1,10 @@
+Описание операции,Название скрипта,Интенсивность,SLA
+Заполнение анкеты на ДК,/alfaform-dc-short-flow-api/application,86400,3
+,/alfaform-dc-short-flow-api/short/application/process-first-step,86400,3
+,/alfaform-dc-short-flow-api/application/{appId}/delivery/{deliveryUuid}/book,86400,3
+,/alfaform-dc-short-flow-api/application/{appid}/delivery/slots,86400,3
+,/alfaform-dc-short-flow-api/delivery,86400,3
+,/alfaform-dc-short-flow-api/verifySms,86400,3
+,/alfaform-dc-short-flow-api/short/application/process-first-step_withAuth,86400,3
+,/alfaform-dc-short-flow-api/finishOrder,86400,3
+,/alfaform-user-feedback-api/feedback,86400,3

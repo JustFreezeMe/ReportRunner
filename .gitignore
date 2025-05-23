@@ -1,0 +1,5 @@
+results/
+target/
+/.idea/
+cert_confl.cer
+certs.cer

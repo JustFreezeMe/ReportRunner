@@ -1,0 +1,36 @@
+Описание операции,Название скрипта,Интенсивность,SLA
+Заполнение анкеты на ДК,/alfaform-dc-short-flow-api/application,86400,3
+,/alfaform-dc-short-flow-api/short/application/process-first-step,86400,3
+,/alfaform-dc-short-flow-api/application/{appId}/delivery/{deliveryUuid}/book,86400,3
+,/alfaform-dc-short-flow-api/application/{appid}/delivery/slots,86400,3
+,/alfaform-dc-short-flow-api/delivery,86400,3
+,/alfaform-dc-short-flow-api/verifySms,86400,3
+,/alfaform-dc-short-flow-api/short/application/process-first-step_withAuth,86400,3
+,/alfaform-dc-short-flow-api/finishOrder,86400,3
+,/alfaform-user-feedback-api/feedback,86400,3
+Заполнение анкеты Х5,/alfaform-x5-ui/api/application,10800,3
+,/alfaform-x5-ui/api/completionPersonalLastname,10800,3
+,/alfaform-x5-ui/api/completionPersonalname,10800,3
+,/alfaform-x5-ui/api/completionPersonalMidname,10800,3
+,/alfaform-x5-ui/api/completionEmailComplete,10800,3
+,/alfaform-x5-ui/api/process-first-step,10800,3
+,/alfaform-x5-ui/api/verifySms,10800,3
+,/alfaform-x5-ui/api/address,10800,3
+,/alfaform-x5-ui/api/delivery,10800,3
+,/alfaform-x5-ui/api/timeSlots,10800,3
+,/alfaform-x5-ui/api/process-first-step_withAuth,10800,3
+,/alfaform-x5-ui/api/finishorder,10800,3
+,/alfaform-x5-open-api/api/v1/logging/choice/{appId},10800,3
+Инвест клиент,/alfaform-dc-open-api/v1/invest/client,360,3
+Фемили банк,/alfaform-dc-open-api/v1/family/client,360,3
+Alfaform-Dt-Product-Api,/alfaform-dt-product-api/v4/dt/dc/process,14400,3
+,/alfaform-dt-product-api/v2/dt/dc/verifySms,14400,3
+,/alfaform-dt-product-api/step2/v2/invokeDraft,14400,3
+,/alfaform-dt-product-api/step2/v2/requestDelivery,14400,3
+,/alfaform-dt-product-api/step2/timeSlot/request,14400,3
+,/alfaform-dt-product-api/step2/timeSlot/book,14400,3
+,/alfaform-dt-product-api/step2/v4/finishOrder,14400,3
+Поиск совпадений и подсказок,/alfaform-dc-completion-api/completion?personal_lastname,9000,3
+,/alfaform-dc-completion-api/completion?personal_firstname,9000,3
+,/alfaform-dc-completion-api/completion?personal_midname,9000,3
+,/alfaform-dc-completion-api/completion?email_complite,9000,3
