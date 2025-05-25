@@ -7,6 +7,7 @@ import reportRunner.Config.ProfileConfig;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 public class ProfileReader {
 
@@ -28,4 +29,18 @@ public class ProfileReader {
                 .filter(op -> op.getScriptName() != null && !op.getScriptName().isEmpty())
                 .count();
     }
+
+    @SneakyThrows
+    public String totalIntensity(String path) {
+        ProfileConfig config = readYaml(path);
+        List<ProfileConfig.Script> scriptList = config.getProfile();
+
+        int total =  scriptList.stream()
+                .map(ProfileConfig.Script::getIntensity)
+                .filter(Objects::nonNull)
+                .mapToInt(Integer::parseInt)
+                .sum();
+        return String.valueOf(total);
+    }
+
 }

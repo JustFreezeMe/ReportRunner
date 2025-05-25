@@ -10,7 +10,7 @@ import reportRunner.Config.UtilityConfig;
 import reportRunner.Confluence.ConfluenceService;
 import reportRunner.FaultTolerance.FaultToleranceProperties;
 import reportRunner.FaultTolerance.FaultToleranceScenario;
-import reportRunner.Grafana.GrafanaApi;
+import reportRunner.Grafana.GrafanaService;
 import reportRunner.Grafana.GraphGroup;
 import reportRunner.ResultsCreator.ReportResult;
 import reportRunner.Service.GraphGroupService;
@@ -60,7 +60,7 @@ public class FaultToleranceController {
         GraphGroup graphGroup = new GraphGroup(utilityConfig);
         JsonPageIdStorage pageIdStorage = new JsonPageIdStorage(jiraConfig, utilityConfig);
         PrometheusController prometheus = new PrometheusController(grafanaConfig.getPrometheusUrl(), grafanaConfig);
-        GrafanaApi grafanaApi = new GrafanaApi(grafanaConfig);
+        GrafanaService grafanaService = new GrafanaService(grafanaConfig);
         List<FaultToleranceScenario> scenarios = faultToleranceProperties.getStages();
         List<GraphGroup> groupOfGraphs = graphGroupService.loadChartGroupsFromConfig();
         List<ReportResult> results = new ArrayList<>();
@@ -69,10 +69,10 @@ public class FaultToleranceController {
             String realEndTime = scenario.getFaultScenarioTestEnd();
             scenario.setFaultScenarioTestEnd(scenario.getEndTimeWithStabilization(scenario.getFaultScenarioTestEnd(), scenario.getFaultScenarioStabilizationLength()));
             scenario.setTimestamps(calculateTimestamps(scenario));
-            grafanaApi.setEndTimestamp(scenario.getTimestamps().get("endTimestamp"));
-            grafanaApi.setStartTimestamp(scenario.getTimestamps().get("startTimestamp"));
-            grafanaApi.setPath(path + scenario.getFaultScenarioTestName().replace("/", "_") + "/");
-            groupOfGraphs = graphGroup.processGraphGroups(groupOfGraphs, scenario.getTimestamps(), grafanaApi, prometheus);
+            grafanaService.setEndTimestamp(scenario.getTimestamps().get("endTimestamp"));
+            grafanaService.setStartTimestamp(scenario.getTimestamps().get("startTimestamp"));
+            grafanaService.setPath(path + scenario.getFaultScenarioTestName().replace("/", "_") + "/");
+            groupOfGraphs = graphGroup.processGraphGroups(groupOfGraphs, scenario.getTimestamps(), grafanaService, prometheus);
 
             scenario.setFaultScenarioTestEnd(realEndTime);
             scenario.setTimestamps(calculateTimestamps(scenario));
@@ -88,7 +88,7 @@ public class FaultToleranceController {
                     scenario.getConfluenceChildredPageId(),
                     "results/" + jiraConfig.getTaskId() + "/grafana_img/" + scenario.getFaultScenarioTestName().replace("/", "_"),
                     groupOfGraphs,
-                    grafanaApi.getEndTimestamp());
+                    grafanaService.getEndTimestamp());
 
             results.add(new ReportResult(scenario.getTimestamps(), groupOfGraphs, uploadResult));
 
@@ -97,7 +97,7 @@ public class FaultToleranceController {
                     confluenceService.confluenceGetPageVersion(scenario.getConfluenceChildredPageId()),
                     scenario,
                     groupOfGraphs,
-                    grafanaApi.getEndTimestamp());
+                    grafanaService.getEndTimestamp());
 
             log.warn("Update page statusCode for Scenario: {} (pageId: {}) is {}", scenario.getFaultScenarioTestName(), scenario.getConfluenceChildredPageId(), updateResult);
         }

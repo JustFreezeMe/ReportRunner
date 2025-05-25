@@ -26,7 +26,7 @@ import reportRunner.Confluence.Templates.ReportTemplatesV2;
 import reportRunner.FaultTolerance.FaultToleranceProperties;
 import reportRunner.FaultTolerance.FaultToleranceScenario;
 import reportRunner.FaultTolerance.FaultToleranceTest;
-import reportRunner.Grafana.GrafanaApi;
+import reportRunner.Grafana.GrafanaService;
 import reportRunner.Grafana.GraphGroup;
 import reportRunner.HttpService.HttpRequestService;
 import reportRunner.ResultsCreator.ReportResult;
@@ -50,7 +50,7 @@ public class ConfluenceService {
     ReportTemplates templates;
     HttpRequestService requests;
     Utility credentialsUtility = new Utility();
-    GrafanaApi grafana;
+    GrafanaService grafana;
     CertConfig certConfig;
     ReportTemplatesV2 reportTemplatesV2;
     ConclusionTemplates conclusionTemplates;
@@ -60,7 +60,7 @@ public class ConfluenceService {
     public ConfluenceService(ConfluenceConfig confluenceConfig, GrafanaConfig grafanaConfig, JiraConfig jiraConfig, MaxPerformanceConfig maxPerformanceConfig, ConfirmMaxConfig confirmMaxConfig, ReliabilityConfig reliabilityConfig, FaultToleranceProperties faultToleranceProperties, UtilityConfig utilityConfig, InfluxDBConfig influxDBConfig, ConclusionTemplates conclusionTemplates, ReportTemplatesV2 reportTemplatesV2) {
         this.confluenceConfig = confluenceConfig;
         this.jiraConfig = jiraConfig;
-        this.grafana = new GrafanaApi(grafanaConfig);
+        this.grafana = new GrafanaService(grafanaConfig);
         this.requests = new HttpRequestService(confluenceConfig);
         this.templates = new ReportTemplates(maxPerformanceConfig, confirmMaxConfig, reliabilityConfig, faultToleranceProperties, utilityConfig, influxDBConfig, new VictoriaMetricsConfig());
         this.certConfig = new CertConfig(confluenceConfig);

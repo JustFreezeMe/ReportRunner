@@ -2,12 +2,7 @@ package reportRunner.Confluence.Templates;
 
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
-import reportRunner.Config.ConfirmMaxConfig;
-import reportRunner.Config.InfluxDBConfig;
-import reportRunner.Config.MaxPerformanceConfig;
-import reportRunner.Config.ReliabilityConfig;
-import reportRunner.Config.UtilityConfig;
-import reportRunner.Config.VictoriaMetricsConfig;
+import reportRunner.Config.*;
 import reportRunner.Csv.CsvUtility;
 import reportRunner.FaultTolerance.FaultToleranceProperties;
 import reportRunner.ResultsCreator.TestTypes.MaxPerformanceTestType;
@@ -129,15 +124,17 @@ public class ConclusionTemplates {
     @SneakyThrows
     private String createTableinCycleForProfile(Long len) {
 
-        List<String[]> csvData = csv.readCsv(PROFILE_FILE_PATH);
+        ProfileConfig config = profileReader.readYaml(PROFILE_FILE_PATH);
+        List<ProfileConfig.Script> profile = config.getProfile();
         StringBuilder sb = new StringBuilder();
         sb.append("<h2><b>7. Профиль нагрузочного тестирования</b></h2>")
                 .append("<table>")
                 .append("<tr><th>№</th><th>Описание сценария</th><th>Название скрипта</th><th>Целевая интенсивность, операций/час</th><th>SLA, сек</th></tr>");
         for (int i = 0; i < len; i++) {
-            sb.append("<tr><td>").append(i + 1).append("</td><td>").append(csvData.get(i + 1)[0]).append("</td><td>").append(csvData.get(i + 1)[1]).append("</td><td>").append(csvData.get(i + 1)[2]).append("</td><td>").append(csvData.get(i + 1)[3]).append("</td></tr>");
+            ProfileConfig.Script script = profile.get(i);
+            sb.append("<tr><td>").append(i + 1).append("</td><td>").append(script.getScenarioName()).append("</td><td>").append(script.getScriptName()).append("</td><td>").append(script.getIntensity()).append("</td><td>").append(script.getSla()).append("</td></tr>");
         }
-        sb.append("<tr><td><b>Итого</b></td><td></td><td></td><td><b>").append(csv.calculateSumOfIntensity(PROFILE_FILE_PATH)).append("</b></td><td></td></tr>")
+        sb.append("<tr><td><b>Итого</b></td><td></td><td></td><td><b>").append(profileReader.totalIntensity(PROFILE_FILE_PATH)).append("</b></td><td></td></tr>")
                 .append("</table>");
 
         return sb.toString();

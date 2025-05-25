@@ -8,7 +8,7 @@ import reportRunner.Config.JiraConfig;
 import reportRunner.Config.ReliabilityConfig;
 import reportRunner.Config.UtilityConfig;
 import reportRunner.Confluence.ConfluenceService;
-import reportRunner.Grafana.GrafanaApi;
+import reportRunner.Grafana.GrafanaService;
 import reportRunner.Grafana.GraphGroup;
 import reportRunner.ResultsCreator.ReportResult;
 import reportRunner.Service.GraphGroupService;
@@ -50,10 +50,10 @@ public class ReliabilityController {
     public ReportResult processReliabilityReport(String pageId) {
         String path = buildGrafanaImgPath();
         Map<String, Long> timestamps = calculateTimestamps();
-        GrafanaApi grafanaApi = createGrafanaApi(timestamps, path);
-        List<GraphGroup> groupOfGraphs = loadAndProcessGraphGroups(timestamps, grafanaApi);
+        GrafanaService grafanaService = createGrafanaApi(timestamps, path);
+        List<GraphGroup> groupOfGraphs = loadAndProcessGraphGroups(timestamps, grafanaService);
         //forE (graph : groupOfGraphs)
-        String uploadResult = uploadToConfluence(pageId, groupOfGraphs, grafanaApi);
+        String uploadResult = uploadToConfluence(pageId, groupOfGraphs, grafanaService);
 
         return new ReportResult(timestamps, groupOfGraphs, uploadResult);
     }
@@ -69,27 +69,27 @@ public class ReliabilityController {
         return testUtility.convertToTimestamp(times.get("startTime"), times.get("endTime"));
     }
 
-    private GrafanaApi createGrafanaApi(Map<String, Long> timestamps, String path) {
-        GrafanaApi grafanaApi = new GrafanaApi(grafanaConfig);
-        grafanaApi.setStartTimestamp(timestamps.get("startTimestamp"));
-        grafanaApi.setEndTimestamp(timestamps.get("endTimestamp"));
-        grafanaApi.setPath(path);
-        return grafanaApi;
+    private GrafanaService createGrafanaApi(Map<String, Long> timestamps, String path) {
+        GrafanaService grafanaService = new GrafanaService(grafanaConfig);
+        grafanaService.setStartTimestamp(timestamps.get("startTimestamp"));
+        grafanaService.setEndTimestamp(timestamps.get("endTimestamp"));
+        grafanaService.setPath(path);
+        return grafanaService;
     }
 
     @SneakyThrows
-    private List<GraphGroup> loadAndProcessGraphGroups(Map<String, Long> timestamps, GrafanaApi grafanaApi) {
+    private List<GraphGroup> loadAndProcessGraphGroups(Map<String, Long> timestamps, GrafanaService grafanaService) {
         GraphGroup graphGroup = new GraphGroup(utilityConfig);
         List<GraphGroup> groupOfGraphs = graphGroupService.loadChartGroupsFromConfig();
         PrometheusController prometheus = new PrometheusController(grafanaConfig.getPrometheusUrl(), grafanaConfig);
-        return graphGroup.processGraphGroups(groupOfGraphs, timestamps, grafanaApi, prometheus);
+        return graphGroup.processGraphGroups(groupOfGraphs, timestamps, grafanaService, prometheus);
     }
 
-    private String uploadToConfluence(String pageId, List<GraphGroup> groupOfGraphs, GrafanaApi grafanaApi) {
+    private String uploadToConfluence(String pageId, List<GraphGroup> groupOfGraphs, GrafanaService grafanaService) {
         return confluenceService.confluenceUploadAttachment(
                 pageId,
                 RESULTS_FOLDER + jiraConfig.getTaskId() + "/" + GRAFANA_IMG_PATH,
                 groupOfGraphs,
-                grafanaApi.getEndTimestamp());
+                grafanaService.getEndTimestamp());
     }
 }

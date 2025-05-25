@@ -34,20 +34,16 @@ public class GraphGroup {
         this.utilityConfig = utilityConfig;
     }
 
-    private List<GraphGroup> loadAndParseGraphGroup(List<GraphGroup> graphGroup, GrafanaApi grafanaApi) throws URISyntaxException, IOException {
+    private List<GraphGroup> loadAndParseGraphGroup(List<GraphGroup> graphGroup, GrafanaService grafanaService) throws URISyntaxException, IOException {
 
         for (GraphGroup group : graphGroup) {
-            String graphData = grafanaApi.createGetGraphsRequest(group);
-            grafanaApi.parseGraphNames(graphData, group.getPanels());
+            String graphData = grafanaService.createGetGraphsRequest(group);
+            grafanaService.parseGraphNames(graphData, group.getPanels());
         }
         return graphGroup;
     }
 
-    private String buildGraphName(String variable, GraphPanel panel) {
-        String name = panel.getPanelName() + "_" + variable;
-        name = name.replaceAll("[^a-zA-Z0-9_%]", "_");
-        return name.replaceAll("_+", "_");
-    }
+
 
     private String fetchPodNameIfRequired(GraphGroup graphGroup, String variable, Map<String, Long> timestamps, PrometheusController prometheus)
             throws IOException, InterruptedException {
@@ -63,10 +59,10 @@ public class GraphGroup {
 
     public List<GraphGroup> processGraphGroups(List<GraphGroup> graphGroups,
                                                Map<String, Long> timestamps,
-                                               GrafanaApi grafanaApi,
+                                               GrafanaService grafanaService,
                                                PrometheusController prometheus) throws URISyntaxException, IOException {
 
-        graphGroups = loadAndParseGraphGroup(graphGroups, grafanaApi);
+        graphGroups = loadAndParseGraphGroup(graphGroups, grafanaService);
 
         ExecutorService executor = Executors.newWorkStealingPool();
 
@@ -77,7 +73,7 @@ public class GraphGroup {
                                 String graphName = buildGraphName(graphGroup.getVariable(), panelName);
                                 if (utilityConfig.getGraphsNeeded()) {
                                     String podName = fetchPodNameIfRequired(graphGroup, graphGroup.getVariable(), timestamps, prometheus);
-                                    grafanaApi.downloadImage(graphName, graphGroup, panelName.getPanelId(), graphGroup.getVariable(), podName);
+                                    grafanaService.downloadImage(graphName, graphGroup, panelName.getPanelId(), graphGroup.getVariable(), podName);
                                 }
                                 panelName.setPanelName(graphName);
                             } catch (IOException e) {
