@@ -10,8 +10,9 @@ import reportRunner.Config.UtilityConfig;
 import reportRunner.Config.VictoriaMetricsConfig;
 import reportRunner.Csv.CsvUtility;
 import reportRunner.FaultTolerance.FaultToleranceProperties;
-import reportRunner.Results.TestTypes.MaxPerformanceTestType;
-import reportRunner.Results.TestTypes.ReliabilityTestType;
+import reportRunner.ResultsCreator.TestTypes.MaxPerformanceTestType;
+import reportRunner.ResultsCreator.TestTypes.ReliabilityTestType;
+import reportRunner.Util.ProfileReader;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -19,10 +20,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
+import static reportRunner.Confluence.ReportTemplates.PROFILE_FILE_PATH;
+
 @Component
 public class ConclusionTemplates {
 
     CsvUtility csv = new CsvUtility();
+    ProfileReader profileReader = new ProfileReader();
     ReliabilityTestType reliabilityTestType;
     MaxPerformanceTestType maxPerformanceTestType;
 
@@ -116,7 +120,7 @@ public class ConclusionTemplates {
 
     @SneakyThrows
     public String createTableForLtProfile() {
-        Long len = csv.csvSize("src/main/resources/profile.csv");
+        Long len = profileReader.yamlSize(PROFILE_FILE_PATH);
         return createTableinCycleForProfile(len - 1);
     }
     private String createHref(String pageId) {
@@ -125,7 +129,7 @@ public class ConclusionTemplates {
     @SneakyThrows
     private String createTableinCycleForProfile(Long len) {
 
-        List<String[]> csvData = csv.readCsv("src/main/resources/profile.csv");
+        List<String[]> csvData = csv.readCsv(PROFILE_FILE_PATH);
         StringBuilder sb = new StringBuilder();
         sb.append("<h2><b>7. Профиль нагрузочного тестирования</b></h2>")
                 .append("<table>")
@@ -133,7 +137,7 @@ public class ConclusionTemplates {
         for (int i = 0; i < len; i++) {
             sb.append("<tr><td>").append(i + 1).append("</td><td>").append(csvData.get(i + 1)[0]).append("</td><td>").append(csvData.get(i + 1)[1]).append("</td><td>").append(csvData.get(i + 1)[2]).append("</td><td>").append(csvData.get(i + 1)[3]).append("</td></tr>");
         }
-        sb.append("<tr><td><b>Итого</b></td><td></td><td></td><td><b>").append(csv.calculateSumOfIntensity("src/main/resources/profile.csv")).append("</b></td><td></td></tr>")
+        sb.append("<tr><td><b>Итого</b></td><td></td><td></td><td><b>").append(csv.calculateSumOfIntensity(PROFILE_FILE_PATH)).append("</b></td><td></td></tr>")
                 .append("</table>");
 
         return sb.toString();

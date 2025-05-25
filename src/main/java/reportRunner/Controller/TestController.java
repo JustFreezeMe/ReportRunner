@@ -9,7 +9,7 @@ import reportRunner.Config.ConfirmMaxConfig;
 import reportRunner.Config.MaxPerformanceConfig;
 import reportRunner.Config.ReliabilityConfig;
 import reportRunner.FaultTolerance.FaultToleranceProperties;
-import reportRunner.Results.ReportResult;
+import reportRunner.ResultsCreator.ReportResult;
 
 import java.util.List;
 

@@ -15,7 +15,7 @@ import reportRunner.Confluence.ConfluenceService;
 import reportRunner.Controller.TestController;
 import reportRunner.FaultTolerance.FaultToleranceProperties;
 import reportRunner.FaultTolerance.FaultToleranceTest;
-import reportRunner.Results.ReportResult;
+import reportRunner.ResultsCreator.ReportResult;
 import reportRunner.JSONStorage.JsonPageIdStorage;
 import reportRunner.Util.TestUtility;
 

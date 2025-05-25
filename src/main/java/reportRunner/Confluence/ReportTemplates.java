@@ -13,8 +13,9 @@ import reportRunner.FaultTolerance.FaultToleranceProperties;
 import reportRunner.FaultTolerance.FaultToleranceScenario;
 import reportRunner.Grafana.GraphGroup;
 import reportRunner.Model.Test;
-import reportRunner.Results.TestTypes.MaxPerformanceTestType;
-import reportRunner.Results.TestTypes.ReliabilityTestType;
+import reportRunner.ResultsCreator.TestTypes.MaxPerformanceTestType;
+import reportRunner.ResultsCreator.TestTypes.ReliabilityTestType;
+import reportRunner.Util.ProfileReader;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ import java.util.List;
 public class ReportTemplates {
 
     CsvUtility csv = new CsvUtility();
+    ProfileReader profileReader = new ProfileReader();
     ReliabilityTestType reliabilityTestType;
     MaxPerformanceTestType maxPerformanceTestType;
 
@@ -29,6 +31,7 @@ public class ReportTemplates {
     private final ConfirmMaxConfig confirmMaxConfig;
     private final ReliabilityConfig reliabilityConfig;
     private final FaultToleranceProperties faultToleranceProperties;
+    public static final String PROFILE_FILE_PATH = "src/main/resources/profile.yaml";
 
     public ReportTemplates(MaxPerformanceConfig maxPerformanceConfig, ConfirmMaxConfig confirmMaxConfig, ReliabilityConfig reliabilityConfig, FaultToleranceProperties faultToleranceProperties, UtilityConfig utilityConfig, InfluxDBConfig influxDBConfig, VictoriaMetricsConfig victoriaMetricsConfig) {
         this.maxPerformanceConfig = maxPerformanceConfig;
@@ -66,8 +69,8 @@ public class ReportTemplates {
 
     @SneakyThrows
     public String createTableForLtProfile() {
-        Long len = csv.csvSize("src/main/resources/profile.csv");
-        return createTableinCycleForProfile(len - 1, "src/main/resources/profile.csv");
+        Long len = profileReader.yamlSize(PROFILE_FILE_PATH);
+        return createTableinCycleForProfile(len - 1, PROFILE_FILE_PATH);
     }
 
     public String createLoadTestTargets() {
@@ -87,78 +90,9 @@ public class ReportTemplates {
         return sb.toString();
     }
 
-    public String createConfirmMaxTemplateV2(Long len, List<GraphGroup> groupOfGraphs, long timestamp, Test test) {
-        String template = "<h3>Результаты теста подтверждения максимальной производительности</h3>\n" +
-                "<p>Тест подтверждения максимальной производительности системы проводился на протяжении X часов. Производительность системы подтверждена на следующей нагрузке: X</p>\n" +
-                "<p>Аномалий и проблем с производительностью не выявлено</p>\n" +
-                "<p>В течении всего теста ошибок – 0%.</p>\n" +
-                "<p>Превышений SLA по времени отклика нет</p>\n";
-        template += createExpandForText(reliabilityTestType.createTableForResults(len - 1, "src/main/resources/profile.csv", test)
-                , "Результаты теста подтверждения максимальной производительности");
-        StringBuilder graphTemplate = new StringBuilder();
-        //template += createExpandForText(createTableForResults(), "Результаты теста надежности");
-
-        for (GraphGroup groupOfGraph : groupOfGraphs) {
-            graphTemplate.append(createExpandForMetrics(groupOfGraph, groupOfGraph.getVariable(), timestamp));
-
-        }
-        template += createExpandForText(String.valueOf(graphTemplate), "Графики по результатам тестирования");
-
-        return template;
-    }
-
-    public String createFaultToleranceResults() {
-        return "<h2><b>3. Результаты нагрузочного тестирования</b></h2>";
-    }
-
-    public String createLoadTestResultsV2(List<GraphGroup> groups, long timestamp) {
-        return "<h2><b>9. Результаты нагрузочного тестирования</b></h2>";
-    }
-
-    @SneakyThrows
-    public String createMaxPerfResults(List<GraphGroup> groups, long timestamp) {
-        Long len = csv.csvSize("src/main/resources/profile.csv");
-        Test maxPerf = new Test.Builder()
-                .withSeparatedRamp(maxPerformanceConfig.getSeparatingRamp())
-                .withRampTime(maxPerformanceConfig.getRampTime())
-                .withStepPercent(maxPerformanceConfig.getStepPercent())
-                .withStabilization(maxPerformanceConfig.getStabilizationTime())
-                .withStartPercent(maxPerformanceConfig.getLoadLevel())
-                .withStartTime(maxPerformanceConfig.getTestStartTime())
-                .withStepsCount(maxPerformanceConfig.getStepsCount())
-                .withStepDuration(maxPerformanceConfig.getStepDuration())
-                .build();
-
-        return createMaxPerfTemplateV2(len, groups, timestamp, maxPerf);
-    }
-
-    @SneakyThrows
-    public String createConfirmMaxResults(List<GraphGroup> groups, long timestamp) {
-        Long len = csv.csvSize("src/main/resources/profile.csv");
-        Test confirmMax = new Test.Builder()
-                .withStartPercent(confirmMaxConfig.getLoadLevel())
-                .withEndTime(confirmMaxConfig.getTestEndTime())
-                .withStepDuration(confirmMaxConfig.getStepDuration())
-                .build();
-
-        return createConfirmMaxTemplateV2(len, groups, timestamp, confirmMax);
-    }
-
-    @SneakyThrows
-    public String createReliabilityResults(List<GraphGroup> groups, long timestamp) {
-        Long len = csv.csvSize("src/main/resources/profile.csv");
-        Test reliability = new Test.Builder()
-                .withStartPercent(reliabilityConfig.getLoadLevel())
-                .withEndTime(reliabilityConfig.getTestEndTime())
-                .withStepDuration(reliabilityConfig.getStepDuration())
-                .build();
-
-        return createReliabilityTemplateV2(len, groups, timestamp, reliability);
-    }
-
     @SneakyThrows
     public String createFaulToleranceResults(List<GraphGroup> groups, long timestamp, FaultToleranceScenario scenario) {
-        Long len = csv.csvSize("src/main/resources/profile.csv");
+        Long len = profileReader.yamlSize(PROFILE_FILE_PATH);
         Test test = new Test.Builder()
                 .withStartPercent(faultToleranceProperties.getLoadLevel())
                 .withEndTime(scenario.getFaultScenarioTestEnd())
@@ -257,7 +191,7 @@ public class ReportTemplates {
     public String createFaultToleranceTemplate(Long len, List<GraphGroup> groupOfGraphs, long timestamp, Test test) {
         String template = "<h3>Результаты теста отказоустойчивости</h3>\n";
 
-        template += createExpandForText(reliabilityTestType.createTableForResults(len - 1, "src/main/resources/profile.csv", test)
+        template += createExpandForText(reliabilityTestType.createTableForResults(len - 1, PROFILE_FILE_PATH, test)
                 , "Результаты теста надежности");
         StringBuilder graphTemplate = new StringBuilder();
 
@@ -276,7 +210,7 @@ public class ReportTemplates {
                 "<p>Аномалий и проблем с производительностью не выявлено</p>\n" +
                 "<p>В течении всего теста ошибок – 0%.</p>\n" +
                 "<p>Превышений SLA по времени отклика нет</p>\n";
-        template += createExpandForText(reliabilityTestType.createTableForResults(len - 1, "src/main/resources/profile.csv", test)
+        template += createExpandForText(reliabilityTestType.createTableForResults(len - 1, PROFILE_FILE_PATH, test)
                 , "Результаты теста надежности");
         StringBuilder graphTemplate = new StringBuilder();
 
@@ -297,7 +231,7 @@ public class ReportTemplates {
                 "<p>В течении всего теста ошибок – 0%.</p>\n" +
                 "<p>Превышений SLA по времени отклика нет</p>\n";
 
-        body += createExpandForText(maxPerformanceTestType.createTableForResults(len - 1, "src/main/resources/profile.csv", test)
+        body += createExpandForText(maxPerformanceTestType.createTableForResults(len - 1, PROFILE_FILE_PATH, test)
                 , "Результаты теста поиска максимальной производительности");
 
         StringBuilder graphTemplate = new StringBuilder();

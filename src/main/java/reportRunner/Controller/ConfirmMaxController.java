@@ -10,7 +10,7 @@ import reportRunner.Config.UtilityConfig;
 import reportRunner.Confluence.ConfluenceService;
 import reportRunner.Grafana.GrafanaApi;
 import reportRunner.Grafana.GraphGroup;
-import reportRunner.Results.ReportResult;
+import reportRunner.ResultsCreator.ReportResult;
 import reportRunner.Service.GraphGroupService;
 import reportRunner.Util.TestUtility;
 import reportRunner.tsdb.Prometheus.PrometheusController;

@@ -4,16 +4,20 @@ import lombok.SneakyThrows;
 import reportRunner.Csv.CsvUtility;
 import reportRunner.Grafana.GraphGroup;
 import reportRunner.Model.Test;
-import reportRunner.Results.TestTypes.MaxPerformanceTestType;
-import reportRunner.Results.TestTypes.ReliabilityTestType;
+import reportRunner.ResultsCreator.TestTypes.MaxPerformanceTestType;
+import reportRunner.ResultsCreator.TestTypes.ReliabilityTestType;
+import reportRunner.Util.ProfileReader;
 
 import java.util.List;
 
 public class ReportProcessor {
 
     CsvUtility csv = new CsvUtility();
+    ProfileReader profileReader = new ProfileReader();
     ReliabilityTestType reliabilityTestType;
     MaxPerformanceTestType maxPerformanceTestType;
+
+    private static final String PROFILE_FILE_PATH = "src/main/resources/profile.yaml";
 
     public ReportProcessor(ReliabilityTestType reliabilityTestType, MaxPerformanceTestType maxPerformanceTestType) {
         this.reliabilityTestType = reliabilityTestType;
@@ -58,7 +62,7 @@ public class ReportProcessor {
     public String createFaultToleranceTemplate(Long len, List<GraphGroup> groupOfGraphs, long timestamp, Test test) {
         String template = "<h3>Результаты теста отказоустойчивости</h3>\n";
 
-        template += createExpandForText(reliabilityTestType.createTableForResults(len - 1, "src/main/resources/profile.csv", test), "Результаты теста надежности");
+        template += createExpandForText(reliabilityTestType.createTableForResults(len - 1, PROFILE_FILE_PATH, test), "Результаты теста надежности");
         StringBuilder graphTemplate = new StringBuilder();
 
         for (GraphGroup groupOfGraph : groupOfGraphs) {
@@ -72,7 +76,7 @@ public class ReportProcessor {
 
     public String createReliabilityTemplateV2(Long len, List<GraphGroup> groupOfGraphs, long timestamp, Test test) {
         String template = "<h3>Результаты теста надежности</h3>\n" + "<p>Тест надежности системы проводился на протяжении X часов. Надежность системы подтверждена на следующей нагрузке</p>\n" + "<p>Аномалий и проблем с производительностью не выявлено</p>\n" + "<p>В течении всего теста ошибок – 0%.</p>\n" + "<p>Превышений SLA по времени отклика нет</p>\n";
-        template += createExpandForText(reliabilityTestType.createTableForResults(len - 1, "src/main/resources/profile.csv", test), "Результаты теста надежности");
+        template += createExpandForText(reliabilityTestType.createTableForResults(len - 1, PROFILE_FILE_PATH, test), "Результаты теста надежности");
         StringBuilder graphTemplate = new StringBuilder();
 
         for (GraphGroup groupOfGraph : groupOfGraphs) {
@@ -87,7 +91,7 @@ public class ReportProcessor {
     public String createMaxPerfTemplateV2(Long len, List<GraphGroup> groupOfGraphs, long timestamp, Test test) {
         String body = "<h3>Результаты теста поиска максимальной производительности</h3>\n" + "<p>Тест поиска максимальной производительности системы проводился на протяжении X часов. Производительность системы подтверждена на следующей нагрузке: X</p>\n" + "<p>На X% тест остановлен ввиду: причина</p>\n" + "<p>Аномалий и проблем с производительностью не выявлено</p>\n" + "<p>В течении всего теста ошибок – 0%.</p>\n" + "<p>Превышений SLA по времени отклика нет</p>\n";
 
-        body += createExpandForText(maxPerformanceTestType.createTableForResults(len - 1, "src/main/resources/profile.csv", test), "Результаты теста поиска максимальной производительности");
+        body += createExpandForText(maxPerformanceTestType.createTableForResults(len - 1, PROFILE_FILE_PATH, test), "Результаты теста поиска максимальной производительности");
 
         StringBuilder graphTemplate = new StringBuilder();
 
@@ -102,7 +106,7 @@ public class ReportProcessor {
 
     public String createConfirmMaxTemplateV2(Long len, List<GraphGroup> groupOfGraphs, long timestamp, Test test) {
         String template = "<h3>Результаты теста подтверждения максимальной производительности</h3>\n" + "<p>Тест подтверждения максимальной производительности системы проводился на протяжении X часов. Производительность системы подтверждена на следующей нагрузке: X</p>\n" + "<p>Аномалий и проблем с производительностью не выявлено</p>\n" + "<p>В течении всего теста ошибок – 0%.</p>\n" + "<p>Превышений SLA по времени отклика нет</p>\n";
-        template += createExpandForText(reliabilityTestType.createTableForResults(len - 1, "src/main/resources/profile.csv", test), "Результаты теста подтверждения максимальной производительности");
+        template += createExpandForText(reliabilityTestType.createTableForResults(len - 1, PROFILE_FILE_PATH, test), "Результаты теста подтверждения максимальной производительности");
         StringBuilder graphTemplate = new StringBuilder();
 
         for (GraphGroup groupOfGraph : groupOfGraphs) {

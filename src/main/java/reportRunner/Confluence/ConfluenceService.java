@@ -29,7 +29,7 @@ import reportRunner.FaultTolerance.FaultToleranceTest;
 import reportRunner.Grafana.GrafanaApi;
 import reportRunner.Grafana.GraphGroup;
 import reportRunner.HttpService.HttpRequestService;
-import reportRunner.Results.ReportResult;
+import reportRunner.ResultsCreator.ReportResult;
 import reportRunner.Util.Utility;
 
 import java.io.File;
@@ -98,8 +98,6 @@ public class ConfluenceService {
 
         HttpClient client = HttpClient.newBuilder().sslContext(certConfig.configureSsl()).build();
         HttpResponse<String> response = client.send(putRequest, HttpResponse.BodyHandlers.ofString());
-
-
     }
 
     @SneakyThrows
@@ -188,7 +186,6 @@ public class ConfluenceService {
 
         String content = templates.createFaultToleranceBaseInfo(scenario)
                 + templates.createFaultToleranceDescribeTemplate()
-                + templates.createFaultToleranceResults()
                 + templates.createFaulToleranceResults(groups, timestamp, scenario);
 
         String body = new JSONObject()
@@ -284,20 +281,27 @@ public class ConfluenceService {
 
     public String confluenceUploadAttachment(String pageId, String path, List<GraphGroup> graphGroup, long timestamp) {
         Map<String, File> graphs = grafana.readGraphs(path, graphGroup, timestamp);
-        HttpPost fileUpload = requests.uploadFileToConfluence(pageId, credentials, graphs);
+        List<HttpPost> requestsList = requests.uploadFileToConfluence(pageId, credentials, graphs);
 
-        try (CloseableHttpClient client = HttpClientBuilder.create().setSSLContext(certConfig.configureSsl()).build();
-             CloseableHttpResponse response = client.execute(fileUpload)) {
+        try (CloseableHttpClient client = HttpClientBuilder.create().setSSLContext(certConfig.configureSsl()).build()) {
+            StringBuilder result = new StringBuilder();
 
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode >= 200 && statusCode < 300) {
-                return "Attachment uploaded successfully. Status: " + statusCode;
-            } else {
-                return "Failed to upload attachment. Status: " + statusCode + ", Reason: " + response.getStatusLine().getReasonPhrase();
+            for (HttpPost request : requestsList) {
+                try (CloseableHttpResponse response = client.execute(request)) {
+                    int statusCode = response.getStatusLine().getStatusCode();
+                    if (statusCode >= 200 && statusCode < 300) {
+                        result.append("Attachment uploaded successfully. Status: ").append(statusCode).append("\n");
+                    } else {
+                        result.append("Failed to upload attachment. Status: ").append(statusCode)
+                                .append(", Reason: ").append(response.getStatusLine().getReasonPhrase()).append("\n");
+                    }
+                } catch (IOException e) {
+                    result.append("Error uploading attachment: ").append(e.getMessage()).append("\n");
+                }
             }
-
-        } catch (IOException e) {
-            return "Error uploading attachment: " + e.getMessage();
+            return result.toString().trim();
+        } catch (Exception e) {
+            return "Failed to create HTTP client: " + e.getMessage();
         }
     }
 

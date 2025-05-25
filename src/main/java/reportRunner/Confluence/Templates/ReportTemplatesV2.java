@@ -17,17 +17,20 @@ import reportRunner.Csv.CsvUtility;
 import reportRunner.FaultTolerance.FaultToleranceProperties;
 import reportRunner.Grafana.GraphGroup;
 import reportRunner.Model.Test;
-import reportRunner.Results.TestTypes.MaxPerformanceTestType;
-import reportRunner.Results.TestTypes.ReliabilityTestType;
+import reportRunner.ResultsCreator.TestTypes.MaxPerformanceTestType;
+import reportRunner.ResultsCreator.TestTypes.ReliabilityTestType;
+import reportRunner.Util.ProfileReader;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static reportRunner.Confluence.ReportTemplates.PROFILE_FILE_PATH;
+
 @Component
 public class ReportTemplatesV2 {
     CsvUtility csv = new CsvUtility();
-
+    ProfileReader profileReader = new ProfileReader();
     ReliabilityTestType reliabilityTestType;
     MaxPerformanceTestType maxPerformanceTestType;
     ReportProcessor reportProcessor;
@@ -100,8 +103,8 @@ public class ReportTemplatesV2 {
 
     @SneakyThrows
     public String createTableForLtProfile() {
-        Long len = csv.csvSize("src/main/resources/profile.csv");
-        return reportProcessor.createTableinCycleForProfile(len - 1, "src/main/resources/profile.csv");
+        Long len = profileReader.yamlSize(PROFILE_FILE_PATH);
+        return reportProcessor.createTableinCycleForProfile(len - 1, PROFILE_FILE_PATH);
     }
 
     public String createLoadTestResultsV2(List<GraphGroup> groups, long timestamp) {
@@ -110,7 +113,7 @@ public class ReportTemplatesV2 {
 
     @SneakyThrows
     public String createMaxPerfResults(List<GraphGroup> groups, long timestamp) {
-        Long len = csv.csvSize("src/main/resources/profile.csv");
+        Long len = profileReader.yamlSize(PROFILE_FILE_PATH);
         Test maxPerf = new Test.Builder()
                 .withSeparatedRamp(maxPerformanceConfig.getSeparatingRamp())
                 .withRampTime(maxPerformanceConfig.getRampTime())
@@ -128,7 +131,7 @@ public class ReportTemplatesV2 {
 
     @SneakyThrows
     public String createConfirmMaxResults(List<GraphGroup> groups, long timestamp) {
-        Long len = csv.csvSize("src/main/resources/profile.csv");
+        Long len = profileReader.yamlSize(PROFILE_FILE_PATH);
         Test confirmMax = new Test.Builder()
                 .withStartPercent(confirmMaxConfig.getLoadLevel())
                 .withEndTime(confirmMaxConfig.getTestEndTime())
@@ -140,7 +143,7 @@ public class ReportTemplatesV2 {
 
     @SneakyThrows
     public String createReliabilityResults(List<GraphGroup> groups, long timestamp) {
-        Long len = csv.csvSize("src/main/resources/profile.csv");
+        Long len = profileReader.yamlSize(PROFILE_FILE_PATH);
         Test reliability = new Test.Builder()
                 .withStartPercent(reliabilityConfig.getLoadLevel())
                 .withEndTime(reliabilityConfig.getTestEndTime())

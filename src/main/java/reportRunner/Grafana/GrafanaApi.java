@@ -58,6 +58,7 @@ public class GrafanaApi {
 
     }
 
+
     public Map<String, File> readGraphs(String pathGraph, List<GraphGroup> groupOfGraphs, long timestamp) {
         Map<String, File> graphsMap = new HashMap<>();
         File file;
@@ -118,7 +119,7 @@ public class GrafanaApi {
     public InputStream downloadSinglePanel(GraphGroup group, String panelId, String application, String podName)
             throws URISyntaxException, IOException {
 
-        CloseableHttpClient client = HttpClientBuilder.create().build();
+
         String dashboardUuid = group.getGroupId();
         String dashboardName = group.getGroupName();
 
@@ -151,8 +152,10 @@ public class GrafanaApi {
         HttpGet request = new HttpGet(uriBuilder.build());
         request.setHeader("Authorization", "Bearer " + grafanaConfig.getGrafanaApiKey());
 
-        CloseableHttpResponse response = client.execute(request);
-        return response.getEntity().getContent();
+        try (CloseableHttpClient client = HttpClientBuilder.create().build();
+             CloseableHttpResponse response = client.execute(request)) {
+            return response.getEntity().getContent();
+        }
     }
 
     public void downloadImage(String graphName, GraphGroup group, String panelId, String application, String podName) throws URISyntaxException, IOException {

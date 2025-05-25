@@ -10,6 +10,8 @@ import reportRunner.Config.ConfluenceConfig;
 import java.io.File;
 import java.net.URI;
 import java.net.http.HttpRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -52,20 +54,27 @@ public class HttpRequestService {
                 .build();
     }
 
-    public HttpPost uploadFileToConfluence(String pageId, String credentials, Map<String, File> files) {
 
-        HttpPost uploadFile;
+    public List<HttpPost> uploadFileToConfluence(String pageId, String credentials, Map<String, File> files) {
+
+        List<HttpPost> requests = new ArrayList<>();
         String uploadUrl = confluenceConfig.getConfluenceUrl() + "/rest/api/content/" + pageId + "/child/attachment";
-        uploadFile = new HttpPost(uploadUrl);
-        uploadFile.addHeader("Authorization", "Basic " + credentials);
-        uploadFile.addHeader("X-Atlassian-Token", "no-check");
 
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        files.forEach((fileName, fileContent) -> builder.addPart("file", new FileBody(fileContent)));
+        for (Map.Entry<String, File> entry : files.entrySet()) {
+            File file = entry.getValue();
 
-        uploadFile.setEntity(builder.build());
+            HttpPost uploadFile = new HttpPost(uploadUrl);
+            uploadFile.addHeader("Authorization", "Basic " + credentials);
+            uploadFile.addHeader("X-Atlassian-Token", "no-check");
 
-        return uploadFile;
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addPart("file", new FileBody(file));
+            uploadFile.setEntity(builder.build());
+
+            requests.add(uploadFile);
+        }
+
+        return requests;
     }
 
     public HttpRequest getAttachmentsIdsRequest(String pageId, String credentials) {

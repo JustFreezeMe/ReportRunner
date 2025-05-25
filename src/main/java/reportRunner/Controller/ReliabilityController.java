@@ -10,7 +10,7 @@ import reportRunner.Config.UtilityConfig;
 import reportRunner.Confluence.ConfluenceService;
 import reportRunner.Grafana.GrafanaApi;
 import reportRunner.Grafana.GraphGroup;
-import reportRunner.Results.ReportResult;
+import reportRunner.ResultsCreator.ReportResult;
 import reportRunner.Service.GraphGroupService;
 import reportRunner.Util.TestUtility;
 import reportRunner.tsdb.Prometheus.PrometheusController;
@@ -52,6 +52,7 @@ public class ReliabilityController {
         Map<String, Long> timestamps = calculateTimestamps();
         GrafanaApi grafanaApi = createGrafanaApi(timestamps, path);
         List<GraphGroup> groupOfGraphs = loadAndProcessGraphGroups(timestamps, grafanaApi);
+        //forE (graph : groupOfGraphs)
         String uploadResult = uploadToConfluence(pageId, groupOfGraphs, grafanaApi);
 
         return new ReportResult(timestamps, groupOfGraphs, uploadResult);
