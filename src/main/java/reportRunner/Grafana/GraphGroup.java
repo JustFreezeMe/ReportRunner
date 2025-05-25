@@ -93,4 +93,10 @@ public class GraphGroup {
 
         return graphGroups;
     }
+
+    private String buildGraphName(String variable, GraphPanel panel) {
+        String name = panel.getPanelName() + "_" + variable;
+        name = name.replaceAll("[^a-zA-Z0-9_%]", "_");
+        return name.replaceAll("_+", "_");
+    }
 }
