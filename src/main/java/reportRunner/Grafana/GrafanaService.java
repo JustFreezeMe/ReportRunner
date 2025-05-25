@@ -49,7 +49,6 @@ public class GrafanaService {
         uriBuilder.addParameter("panelId", String.valueOf(panelId));
         uriBuilder.addParameter("from", String.valueOf(getStartTimestamp()));
         uriBuilder.addParameter("to", String.valueOf(getEndTimestamp()));
-        uriBuilder.addParameter("var-g", "5s");
         uriBuilder.addParameter("width", String.valueOf(grafanaConfig.getGrafanaWidth()));
         uriBuilder.addParameter("height", String.valueOf(grafanaConfig.getGrafanaHeight()));
 
@@ -115,7 +114,7 @@ public class GrafanaService {
         }));
     }
 
-    public InputStream downloadSinglePanel(GraphGroup group, String panelId, String application, String podName)
+    public InputStream downloadSinglePanel(GraphGroup group, String panelId, String application, String podName, Map<String, String> variables)
             throws URISyntaxException, IOException {
 
 
@@ -139,7 +138,7 @@ public class GrafanaService {
         }
 
         // Дополнительные переменные из `variables`
-        if (group.getVariables() != null) {
+        if (group.getGrafanaVariables() != null) {
             for (Map.Entry<String, List<String>> entry : group.getGrafanaVariables().entrySet()) {
                 String key = entry.getKey();
                 for (String value : entry.getValue()) {
@@ -157,9 +156,9 @@ public class GrafanaService {
         }
     }
 
-    public void downloadImage(String graphName, GraphGroup group, String panelId, String application, String podName) throws URISyntaxException, IOException {
+    public void downloadImage(String graphName, GraphGroup group, String panelId, String application, String podName, Map<String, String> variables) throws URISyntaxException, IOException {
         String timestamp = String.valueOf(endTimestamp);
-        try (InputStream is = downloadSinglePanel(group, panelId, application, podName)) {
+        try (InputStream is = downloadSinglePanel(group, panelId, application, podName,variables)) {
             saveImgToFile(is, graphName + "_" + timestamp);
         } catch (IOException e) {
             log.error(e.getMessage());

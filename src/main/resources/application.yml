@@ -109,12 +109,11 @@ grafana:
           - 944
           - 939
           - 959
-        applications: ""
         variables:
+          applications:
+            - ""
           kafka-topic:
             - ""
-            - ""
-          region:
             - ""
       - title: ""
         dashboardName: ""
@@ -123,9 +122,10 @@ grafana:
           - 898
           - 899
           - 902
-        applications:
-          - ""
-          - ""
+        variables:
+          applications:
+            - ""
+            - ""
       - title: ""
         dashboardName: ""
         dashboardUUID: ""
@@ -141,9 +141,10 @@ grafana:
           - 920
           - 923
           - 976
-        applications:
-          - ""
-          - ""
+        variables:
+          applications:
+            - ""
+            - ""
         needPod: true #Флаг надо выгружать график отдельно для пода/инстанса или нет
 
       - title: ""
@@ -158,10 +159,11 @@ grafana:
           - 16
           - 13
           - 14
-        applications:
-          - ""
-          - ""
-          - ""
+        variables:
+          instance:
+            - ""
+            - ""
+            - ""
       - title: ""
         dashboardName: ""
         dashboardUUID: ""
@@ -170,10 +172,11 @@ grafana:
           - 78
           - 74
           - 152
-        applications:
-          - ""
-          - ""
-          - ""
+        variables:
+          instance:
+            - ""
+            - ""
+            - ""
 
 
 fault-tolerance:

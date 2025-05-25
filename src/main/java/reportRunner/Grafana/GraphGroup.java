@@ -7,9 +7,7 @@ import reportRunner.tsdb.Prometheus.PrometheusController;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -63,29 +61,42 @@ public class GraphGroup {
                                                PrometheusController prometheus) throws URISyntaxException, IOException {
 
         graphGroups = loadAndParseGraphGroup(graphGroups, grafanaService);
-
         ExecutorService executor = Executors.newWorkStealingPool();
 
         List<CompletableFuture<Void>> futures = graphGroups.stream()
-                .flatMap(graphGroup -> graphGroup.getPanels().stream().map(panelName ->
-                        CompletableFuture.runAsync(() -> {
-                            try {
-                                String graphName = buildGraphName(graphGroup.getVariable(), panelName);
-                                if (utilityConfig.getGraphsNeeded()) {
-                                    String podName = fetchPodNameIfRequired(graphGroup, graphGroup.getVariable(), timestamps, prometheus);
-                                    grafanaService.downloadImage(graphName, graphGroup, panelName.getPanelId(), graphGroup.getVariable(), podName);
-                                }
-                                panelName.setPanelName(graphName);
-                            } catch (IOException e) {
-                                log.error("Ошибка загрузки графика: {}", e.getMessage());
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt(); // Восстановить флаг прерывания
-                                log.error("Процесс был прерван: {}", e.getMessage());
-                            } catch (URISyntaxException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }, executor)
-                ))
+                .flatMap(graphGroup -> {
+                    List<Map<String, String>> combinations = generateVariableCombinations(
+                            Optional.ofNullable(graphGroup.getGrafanaVariables()).orElse(Collections.emptyMap())
+                    );
+
+                    // Если переменных нет, добавим пустую комбинацию
+                    if (combinations.isEmpty()) {
+                        combinations.add(Collections.emptyMap());
+                    }
+
+                    return combinations.stream().flatMap(vars ->
+                            graphGroup.getPanels().stream().map(panel ->
+                                    CompletableFuture.runAsync(() -> {
+                                        try {
+                                            String graphName = buildGraphName(vars, panel);
+                                            if (utilityConfig.getGraphsNeeded()) {
+                                                String application = vars.get("application"); // может отсутствовать
+                                                String podName = fetchPodNameIfRequired(graphGroup, application, timestamps, prometheus);
+                                                grafanaService.downloadImage(graphName, graphGroup, panel.getPanelId(), application, podName, vars);
+                                            }
+                                            panel.setPanelName(graphName);
+                                        } catch (IOException e) {
+                                            log.error("Ошибка загрузки графика: {}", e.getMessage());
+                                        } catch (InterruptedException e) {
+                                            Thread.currentThread().interrupt();
+                                            log.error("Процесс был прерван: {}", e.getMessage());
+                                        } catch (URISyntaxException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    }, executor)
+                            )
+                    );
+                })
                 .collect(Collectors.toList());
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
@@ -94,9 +105,29 @@ public class GraphGroup {
         return graphGroups;
     }
 
-    private String buildGraphName(String variable, GraphPanel panel) {
-        String name = panel.getPanelName() + "_" + variable;
-        name = name.replaceAll("[^a-zA-Z0-9_%]", "_");
-        return name.replaceAll("_+", "_");
+
+    private String buildGraphName(Map<String, String> vars, GraphPanel panel) {
+        return vars.entrySet().stream()
+                .map(e -> e.getKey() + "=" + e.getValue())
+                .collect(Collectors.joining("_")) + "_" + panel.getPanelId();
+    }
+
+    public List<Map<String, String>> generateVariableCombinations(Map<String, List<String>> variables) {
+        List<Map<String, String>> result = new ArrayList<>();
+        generateRecursive(result, new HashMap<>(), new ArrayList<>(variables.entrySet()), 0);
+        return result;
+    }
+
+    private void generateRecursive(List<Map<String, String>> result, Map<String, String> current,
+                                   List<Map.Entry<String, List<String>>> entries, int index) {
+        if (index == entries.size()) {
+            result.add(new HashMap<>(current));
+            return;
+        }
+        Map.Entry<String, List<String>> entry = entries.get(index);
+        for (String value : entry.getValue()) {
+            current.put(entry.getKey(), value);
+            generateRecursive(result, current, entries, index + 1);
+        }
     }
 }
