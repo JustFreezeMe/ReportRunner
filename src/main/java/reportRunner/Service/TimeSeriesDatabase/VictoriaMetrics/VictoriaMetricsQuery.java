@@ -1,4 +1,4 @@
-package ru.alfabank.ReportRunner.Service.TimeSeriesDatabaseService.VictoriaMetrics;
+package reportRunner.Service.TimeSeriesDatabase.VictoriaMetrics;
 
 public class VictoriaMetricsQuery {
     public String getResponseTimeQueryVm(String quantile, String testDuration) {

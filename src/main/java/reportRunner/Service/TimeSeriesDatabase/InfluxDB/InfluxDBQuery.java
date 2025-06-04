@@ -1,4 +1,4 @@
-package ru.alfabank.ReportRunner.Service.TimeSeriesDatabaseService.InfluxDB;
+package reportRunner.Service.TimeSeriesDatabase.InfluxDB;
 
 public class InfluxDBQuery {
 

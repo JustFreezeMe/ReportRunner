@@ -1,4 +1,4 @@
-package ru.alfabank.ReportRunner.Service.TimeSeriesDatabaseService.Prometheus;
+package reportRunner.Service.TimeSeriesDatabase.Prometheus;
 
 public class PrometheusQuery {
 
