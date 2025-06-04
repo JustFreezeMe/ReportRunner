@@ -13,7 +13,7 @@ import reportRunner.Grafana.GraphGroup;
 import reportRunner.ResultsCreator.ReportResult;
 import reportRunner.Service.GraphGroupService;
 import reportRunner.Util.TestUtility;
-import reportRunner.tsdb.Prometheus.PrometheusController;
+import reportRunner.Service.TimeSeriesDatabase.Prometheus.PrometheusController;
 
 import java.time.LocalDateTime;
 import java.util.List;

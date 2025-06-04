@@ -3,7 +3,7 @@ package reportRunner.Grafana;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import reportRunner.Config.UtilityConfig;
-import reportRunner.tsdb.Prometheus.PrometheusController;
+import reportRunner.Service.TimeSeriesDatabase.Prometheus.PrometheusController;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

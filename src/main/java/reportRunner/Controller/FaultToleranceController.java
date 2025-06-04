@@ -16,7 +16,7 @@ import reportRunner.ResultsCreator.ReportResult;
 import reportRunner.Service.GraphGroupService;
 import reportRunner.Util.TestUtility;
 import reportRunner.JSONStorage.JsonPageIdStorage;
-import reportRunner.tsdb.Prometheus.PrometheusController;
+import reportRunner.Service.TimeSeriesDatabase.Prometheus.PrometheusController;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

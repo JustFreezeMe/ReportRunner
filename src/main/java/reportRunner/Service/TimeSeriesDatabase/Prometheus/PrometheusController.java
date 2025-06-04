@@ -1,4 +1,4 @@
-package reportRunner.tsdb.Prometheus;
+package reportRunner.Service.TimeSeriesDatabase.Prometheus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

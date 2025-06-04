@@ -1,9 +1,9 @@
-package reportRunner.tsdb.VictoriaMetrics;
+package reportRunner.Service.TimeSeriesDatabase.VictoriaMetrics;
 
 import lombok.Data;
 import lombok.SneakyThrows;
 import reportRunner.Config.VictoriaMetricsConfig;
-import reportRunner.tsdb.Tsdb;
+import reportRunner.Service.TimeSeriesDatabase.TimeSeriesDatabase;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Data
-public class VictoriaMetricsDTO implements Tsdb {
+public class VictoriaMetricsDTO implements TimeSeriesDatabase {
 
     private static final String RESPONSE_TIME_QUANTILE = "0.95";
     private final Map<String, Map<String, Double>> queryResults = new HashMap<>();

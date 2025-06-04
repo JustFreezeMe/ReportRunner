@@ -1,4 +1,4 @@
-package reportRunner.tsdb.InfluxDB;
+package reportRunner.Service.TimeSeriesDatabase.InfluxDB;
 
 import okhttp3.OkHttpClient;
 import org.influxdb.InfluxDB;

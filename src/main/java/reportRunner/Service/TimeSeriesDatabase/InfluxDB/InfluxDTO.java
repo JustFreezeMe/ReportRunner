@@ -1,10 +1,10 @@
-package reportRunner.tsdb.InfluxDB;
+package reportRunner.Service.TimeSeriesDatabase.InfluxDB;
 
 import lombok.Getter;
 import lombok.Setter;
 import reportRunner.Config.InfluxDBConfig;
 import reportRunner.Config.UtilityConfig;
-import reportRunner.tsdb.Tsdb;
+import reportRunner.Service.TimeSeriesDatabase.TimeSeriesDatabase;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Setter
 @Getter
-public class InfluxDTO implements Tsdb {
+public class InfluxDTO implements TimeSeriesDatabase {
 
     private final Map<String, Map<String, Double>> queryResults = new HashMap<>();
     private final InfluxController influxController;
