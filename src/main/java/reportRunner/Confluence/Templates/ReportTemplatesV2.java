@@ -15,7 +15,7 @@ import reportRunner.Confluence.Templates.Tables.MicroserviceLoader;
 import reportRunner.Confluence.Templates.Tables.MicroservicesInfo;
 import reportRunner.Csv.CsvUtility;
 import reportRunner.FaultTolerance.FaultToleranceProperties;
-import reportRunner.Grafana.GraphGroup;
+import reportRunner.Service.GrafanaService.GraphGroup;
 import reportRunner.Model.Test;
 import reportRunner.ResultsCreator.TestTypes.MaxPerformanceTestType;
 import reportRunner.ResultsCreator.TestTypes.ReliabilityTestType;

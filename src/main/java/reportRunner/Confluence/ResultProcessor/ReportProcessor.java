@@ -3,7 +3,7 @@ package reportRunner.Confluence.ResultProcessor;
 import lombok.SneakyThrows;
 import reportRunner.Config.ProfileConfig;
 import reportRunner.Csv.CsvUtility;
-import reportRunner.Grafana.GraphGroup;
+import reportRunner.Service.GrafanaService.GraphGroup;
 import reportRunner.Model.Test;
 import reportRunner.ResultsCreator.TestTypes.MaxPerformanceTestType;
 import reportRunner.ResultsCreator.TestTypes.ReliabilityTestType;

@@ -1,37 +1,9 @@
 profile:
-  - scenario: "Заполнение анкеты на ДК"
-    script: "/alfaform-dc-short-flow-api/application"
+  - scenario: "scenario Name"
+    script: "script 1 Name"
     intensity: 86400
     sla: 3
 
-  - script: "/alfaform-dc-short-flow-api/short/application/process-first-step"
-    intensity: 86400
-    sla: 3
-
-  - script: "/alfaform-dc-short-flow-api/application/{appId}/delivery/{deliveryUuid}/book"
-    intensity: 86400
-    sla: 3
-
-  - script: "/alfaform-dc-short-flow-api/application/{appid}/delivery/slots"
-    intensity: 86400
-    sla: 3
-
-  - script: "/alfaform-dc-short-flow-api/delivery"
-    intensity: 86400
-    sla: 3
-
-  - script: "/alfaform-dc-short-flow-api/verifySms"
-    intensity: 86400
-    sla: 3
-
-  - script: "/alfaform-dc-short-flow-api/short/application/process-first-step_withAuth"
-    intensity: 86400
-    sla: 3
-
-  - script: "/alfaform-dc-short-flow-api/finishOrder"
-    intensity: 86400
-    sla: 3
-
-  - script: "/alfaform-user-feedback-api/feedback"
+  - script: "Script 2 Name"
     intensity: 86400
     sla: 3

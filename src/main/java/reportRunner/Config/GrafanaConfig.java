@@ -1,4 +1,4 @@
-package reportRunner.Config.Grafana;
+package reportRunner.Config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -13,7 +13,7 @@ public class GrafanaConfig {
     private Integer grafanaWidth;
     private Integer grafanaHeight;
     private String prometheusUrl;
-    private String enviroment;
+    private String environment;
     private KubernetesConfig kubernetes;
 
     @Data

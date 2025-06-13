@@ -1,4 +1,4 @@
-package reportRunner.Grafana;
+package reportRunner.Service.GrafanaService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -15,7 +16,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Component;
-import reportRunner.Config.Grafana.GrafanaConfig;
+import reportRunner.Config.GrafanaConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +36,7 @@ public class GrafanaService {
     Long endTimestamp;
     String path;
     private final GrafanaConfig grafanaConfig;
+
     public GrafanaService(GrafanaConfig grafanaConfig) {
         this.grafanaConfig = grafanaConfig;
     }
@@ -49,13 +51,13 @@ public class GrafanaService {
         uriBuilder.addParameter("panelId", String.valueOf(panelId));
         uriBuilder.addParameter("from", String.valueOf(getStartTimestamp()));
         uriBuilder.addParameter("to", String.valueOf(getEndTimestamp()));
+        uriBuilder.addParameter("var-g", "5s");
         uriBuilder.addParameter("width", String.valueOf(grafanaConfig.getGrafanaWidth()));
         uriBuilder.addParameter("height", String.valueOf(grafanaConfig.getGrafanaHeight()));
 
         return uriBuilder;
 
     }
-
 
     public Map<String, File> readGraphs(String pathGraph, List<GraphGroup> groupOfGraphs, long timestamp) {
         Map<String, File> graphsMap = new HashMap<>();
@@ -102,63 +104,71 @@ public class GrafanaService {
 
     public void parseGraphNames(String responseBody, List<GraphPanel> panels) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode rootNode = mapper.readTree(responseBody).path("dashboard").path("panels");
+        JsonNode json = mapper.readTree(responseBody);
+        JsonNode rootNode = json.get("dashboard").get("panels");
+        for (GraphPanel panel : panels) {
+            for (int i = 0; i < rootNode.size(); i++) {
+                JsonNode node = rootNode.get(i).get("id"); // Извлекаем id узла
+                String panelId = node.asText(); // Преобразуем id в строку
 
-        panels.forEach(panel -> rootNode.forEach(jsonNode -> {
-            if (jsonNode.path("id").asText().equals(panel.getPanelId())) {
-                String cleanedTitle = jsonNode.path("title").asText()
-                        .replaceAll("\\s+", "_")
-                        .replaceAll("[\\/:.]", "_");
-                panel.setPanelName(cleanedTitle);
+                if (panelId.equals(panel.getPanelId())) {
+                    panel.setPanelName(rootNode.get(i).get("title").asText()
+                            .replaceAll("\\s+", "_")
+                            .replaceAll("\\.", "")
+                            .replaceAll("[\\\\:\\.]", "_")
+                            .replace("/", "_")
+                            .replace(":", "_"));
+                }
             }
-        }));
+        }
     }
 
-    public InputStream downloadSinglePanel(GraphGroup group, String panelId, String application, String podName, Map<String, String> variables)
+    public InputStream downloadSinglePanel(GraphGroup group, String panelId, String application, String podName)
             throws URISyntaxException, IOException {
+        // Создаем HTTP-клиент
+        CloseableHttpClient client = HttpClientBuilder.create().build();
 
-
+        // Получаем данные дашборда из GraphGroup
         String dashboardUuid = group.getGroupId();
         String dashboardName = group.getGroupName();
 
+        // Создаем URI на основе ID панели, UUID и имени дашборда
         URIBuilder uriBuilder = createUriBuilder(Integer.parseInt(panelId), dashboardUuid, dashboardName);
 
-        // Стандартные переменные
+        // Добавляем переменные из GraphGroup (например, application)
+        uriBuilder.addParameter("var-application", application);
+        uriBuilder.addParameter("var-instance", application);
         uriBuilder.addParameter("var-namespace", grafanaConfig.getKubernetes().getNamespaceName());
-        uriBuilder.addParameter("var-job", "staticScrape/monitoring/node-exporter-db/0");
-
-        if (application != null && !application.isEmpty()) {
-            uriBuilder.addParameter("var-application", application);
-            uriBuilder.addParameter("var-instance", application);
-            uriBuilder.addParameter("var-node", application);
-        }
-
+       // uriBuilder.addParameter("var-job", "staticScrape/monitoring/node-exporter-db/0");
+        uriBuilder.addParameter("var-node", application);
         if (podName != null && !podName.isEmpty()) {
             uriBuilder.addParameter("var-pod_name", podName);
         }
 
-        // Дополнительные переменные из `variables`
-        if (group.getGrafanaVariables() != null) {
-            for (Map.Entry<String, List<String>> entry : group.getGrafanaVariables().entrySet()) {
-                String key = entry.getKey();
-                for (String value : entry.getValue()) {
-                    uriBuilder.addParameter("var-" + key, value);
-                }
-            }
-        }
 
+        log.info("URI для панели: {} is {}", panelId, uriBuilder);
+
+        // Создаем запрос
         HttpGet request = new HttpGet(uriBuilder.build());
         request.setHeader("Authorization", "Bearer " + grafanaConfig.getGrafanaApiKey());
 
-        try (CloseableHttpClient client = HttpClientBuilder.create().build();
-             CloseableHttpResponse response = client.execute(request)) {
-            return response.getEntity().getContent();
+        // Выполняем запрос
+        HttpResponse response = client.execute(request);
+
+        // Проверяем статус ответа
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode != 200) {
+            throw new IOException("Не удалось скачать график для панели " + panelId
+                    + ": " + statusCode + " " + response.getStatusLine().getReasonPhrase());
         }
+
+        // Возвращаем поток для сохранения изображения
+        return response.getEntity().getContent();
     }
 
-    public void downloadImage(String graphName, GraphGroup group, String panelId, String application, String podName, Map<String, String> variables) throws URISyntaxException, IOException {
+    public void downloadImage(String graphName, GraphGroup group, String panelId, String application, String podName) throws URISyntaxException, IOException {
         String timestamp = String.valueOf(endTimestamp);
-        try (InputStream is = downloadSinglePanel(group, panelId, application, podName,variables)) {
+        try (InputStream is = downloadSinglePanel(group, panelId, application, podName)) {
             saveImgToFile(is, graphName + "_" + timestamp);
         } catch (IOException e) {
             log.error(e.getMessage());

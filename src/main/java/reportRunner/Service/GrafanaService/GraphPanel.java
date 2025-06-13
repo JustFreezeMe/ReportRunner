@@ -1,4 +1,4 @@
-package reportRunner.Grafana;
+package reportRunner.Service.GrafanaService;
 
 import lombok.Data;
 

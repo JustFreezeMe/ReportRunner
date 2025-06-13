@@ -1,19 +1,16 @@
-package reportRunner.Config.Grafana;
+package reportRunner.Service.GrafanaService;
 
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Data
-public class GraphGroupConfig {
+public class GraphGroupDTO {
     private String dashboardName;
     private String dashboardUUID;
     private String title;
     private boolean needPod;
     private List<Integer> panels = new ArrayList<>();
     private List<String> applications = new ArrayList<>();
-    private Map<String, List<String>> grafanaVariables = new HashMap<>(); // новые переменные
 }

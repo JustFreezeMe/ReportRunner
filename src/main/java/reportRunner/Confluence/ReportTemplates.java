@@ -3,10 +3,9 @@ package reportRunner.Confluence;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import reportRunner.Config.*;
-import reportRunner.Csv.CsvUtility;
 import reportRunner.FaultTolerance.FaultToleranceProperties;
 import reportRunner.FaultTolerance.FaultToleranceScenario;
-import reportRunner.Grafana.GraphGroup;
+import reportRunner.Service.GrafanaService.GraphGroup;
 import reportRunner.Model.Test;
 import reportRunner.ResultsCreator.TestTypes.MaxPerformanceTestType;
 import reportRunner.ResultsCreator.TestTypes.ReliabilityTestType;
@@ -64,7 +63,7 @@ public class ReportTemplates {
     @SneakyThrows
     public String createTableForLtProfile() {
         Long len = profileReader.yamlSize(PROFILE_FILE_PATH);
-        return createTableinCycleForProfile(len - 1, PROFILE_FILE_PATH);
+        return createTableinCycleForProfile(Long.valueOf(len - 1), PROFILE_FILE_PATH);
     }
 
     public String createLoadTestTargets() {

@@ -1,11 +1,9 @@
-package reportRunner.Service;
+package reportRunner.Service.GrafanaService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reportRunner.Config.UtilityConfig;
-import reportRunner.Config.Grafana.GrafanaConfigProperties;
-import reportRunner.Grafana.GraphGroup;
-import reportRunner.Grafana.GraphPanel;
+import reportRunner.Config.GrafanaGroupsConfig;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,11 +13,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GraphGroupService {
 
-    private final GrafanaConfigProperties grafanaConfigProperties;
+    private final GrafanaGroupsConfig grafanaGroupsConfig;
     private final UtilityConfig utilityConfig;
 
     public List<GraphGroup> loadChartGroupsFromConfig() {
-        return grafanaConfigProperties.getGrafanaGroups().stream()
+        return grafanaGroupsConfig.getGrafanaGroups().stream()
                 .flatMap(groupConfig -> {
                     // Базовые параметры группы
                     String groupName = groupConfig.getDashboardName();

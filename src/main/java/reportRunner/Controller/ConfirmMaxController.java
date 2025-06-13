@@ -3,19 +3,18 @@ package reportRunner.Controller;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import reportRunner.Config.ConfirmMaxConfig;
-import reportRunner.Config.Grafana.GrafanaConfig;
+import reportRunner.Config.GrafanaConfig;
 import reportRunner.Config.JiraConfig;
+import reportRunner.Config.TestConfig.TestConfig;
 import reportRunner.Config.UtilityConfig;
-import reportRunner.Confluence.ConfluenceService;
-import reportRunner.Grafana.GrafanaService;
-import reportRunner.Grafana.GraphGroup;
-import reportRunner.ResultsCreator.ReportResult;
-import reportRunner.Service.GraphGroupService;
-import reportRunner.Util.TestUtility;
-import reportRunner.Service.TimeSeriesDatabase.Prometheus.PrometheusController;
+import reportRunner.Service.ConfluenceService.ConfluenceService;
+import reportRunner.Service.GrafanaService.GrafanaService;
+import reportRunner.Service.GrafanaService.GraphGroup;
+import reportRunner.Service.ResultsService.ReportResult;
+import reportRunner.Service.GrafanaService.GraphGroupService;
+import reportRunner.Utility.ReportUtility;
+import reportRunner.Service.TimeSeriesDatabaseService.Prometheus.PrometheusController;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -27,29 +26,27 @@ public class ConfirmMaxController {
 
     private final UtilityConfig utilityConfig;
     private final JiraConfig jiraConfig;
-    private final ConfirmMaxConfig confirmMaxConfig;
     private final GraphGroupService graphGroupService;
     private final GrafanaConfig grafanaConfig;
     private final ConfluenceService confluenceService;
-    private final TestUtility testUtility;
+    private final ReportUtility testUtility;
 
     @Autowired
     public ConfirmMaxController(UtilityConfig utilityConfig, JiraConfig jiraConfig,
-                                ConfirmMaxConfig confirmMaxConfig, GraphGroupService graphGroupService,
+                                GraphGroupService graphGroupService,
                                 GrafanaConfig grafanaConfig, ConfluenceService confluenceService,
-                                TestUtility testUtility) {
+                                ReportUtility testUtility) {
         this.utilityConfig = utilityConfig;
         this.jiraConfig = jiraConfig;
-        this.confirmMaxConfig = confirmMaxConfig;
         this.graphGroupService = graphGroupService;
         this.grafanaConfig = grafanaConfig;
         this.confluenceService = confluenceService;
         this.testUtility = testUtility;
     }
 
-    public ReportResult processConfirmMaxReport(String pageId) {
+    public ReportResult processConfirmMaxReport(TestConfig test, String pageId) {
         String path = buildGrafanaImgPath();
-        Map<String, Long> timestamps = calculateTimestamps();
+        Map<String, Long> timestamps = testUtility.calculateTimestamps(test);
         GrafanaService grafanaService = createGrafanaApi(timestamps, path);
         List<GraphGroup> groupOfGraphs = loadAndProcessGraphGroups(timestamps, grafanaService);
         String uploadResult = uploadToConfluence(pageId, groupOfGraphs, grafanaService);
@@ -59,13 +56,6 @@ public class ConfirmMaxController {
 
     private String buildGrafanaImgPath() {
         return utilityConfig.getResultsFolder() + "/" + jiraConfig.getTaskId() + "/" + GRAFANA_IMG_PATH;
-    }
-
-    private Map<String, Long> calculateTimestamps() {
-        Map<String, LocalDateTime> times = testUtility.calclateTimestampsForGatling(
-                confirmMaxConfig.getTestEndTime(), confirmMaxConfig.getStepDuration());
-
-        return testUtility.convertToTimestamp(times.get("startTime"), times.get("endTime"));
     }
 
     private GrafanaService createGrafanaApi(Map<String, Long> timestamps, String path) {

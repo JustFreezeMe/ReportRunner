@@ -3,19 +3,18 @@ package reportRunner.Controller;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import reportRunner.Config.Grafana.GrafanaConfig;
+import reportRunner.Config.GrafanaConfig;
 import reportRunner.Config.JiraConfig;
-import reportRunner.Config.ReliabilityConfig;
+import reportRunner.Config.TestConfig.TestConfig;
 import reportRunner.Config.UtilityConfig;
-import reportRunner.Confluence.ConfluenceService;
-import reportRunner.Grafana.GrafanaService;
-import reportRunner.Grafana.GraphGroup;
-import reportRunner.ResultsCreator.ReportResult;
-import reportRunner.Service.GraphGroupService;
-import reportRunner.Util.TestUtility;
-import reportRunner.Service.TimeSeriesDatabase.Prometheus.PrometheusController;
+import reportRunner.Service.ConfluenceService.ConfluenceService;
+import reportRunner.Service.GrafanaService.GrafanaService;
+import reportRunner.Service.GrafanaService.GraphGroup;
+import reportRunner.Service.ResultsService.ReportResult;
+import reportRunner.Service.GrafanaService.GraphGroupService;
+import reportRunner.Utility.ReportUtility;
+import reportRunner.Service.TimeSeriesDatabaseService.Prometheus.PrometheusController;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -26,20 +25,18 @@ public class ReliabilityController {
 
     private final UtilityConfig utilityConfig;
     private final JiraConfig jiraConfig;
-    private final ReliabilityConfig reliabilityConfig;
     private final GraphGroupService graphGroupService;
     private final GrafanaConfig grafanaConfig;
     private final ConfluenceService confluenceService;
-    private final TestUtility testUtility;
+    private final ReportUtility testUtility;
 
     @Autowired
     public ReliabilityController(UtilityConfig utilityConfig, JiraConfig jiraConfig,
-                                 ReliabilityConfig reliabilityConfig, GraphGroupService graphGroupService,
+                                 GraphGroupService graphGroupService,
                                  GrafanaConfig grafanaConfig, ConfluenceService confluenceService,
-                                 TestUtility testUtility) {
+                                 ReportUtility testUtility) {
         this.utilityConfig = utilityConfig;
         this.jiraConfig = jiraConfig;
-        this.reliabilityConfig = reliabilityConfig;
         this.graphGroupService = graphGroupService;
         this.grafanaConfig = grafanaConfig;
         this.confluenceService = confluenceService;
@@ -47,12 +44,11 @@ public class ReliabilityController {
     }
 
     @SneakyThrows
-    public ReportResult processReliabilityReport(String pageId) {
+    public ReportResult processReliabilityReport(TestConfig test, String pageId) {
         String path = buildGrafanaImgPath();
-        Map<String, Long> timestamps = calculateTimestamps();
+        Map<String, Long> timestamps = testUtility.calculateTimestamps(test);
         GrafanaService grafanaService = createGrafanaApi(timestamps, path);
         List<GraphGroup> groupOfGraphs = loadAndProcessGraphGroups(timestamps, grafanaService);
-        //forE (graph : groupOfGraphs)
         String uploadResult = uploadToConfluence(pageId, groupOfGraphs, grafanaService);
 
         return new ReportResult(timestamps, groupOfGraphs, uploadResult);
@@ -62,12 +58,6 @@ public class ReliabilityController {
         return utilityConfig.getResultsFolder() + "/" + jiraConfig.getTaskId() + "/" + GRAFANA_IMG_PATH;
     }
 
-    private Map<String, Long> calculateTimestamps() {
-        Map<String, LocalDateTime> times = testUtility.calclateTimestampsForGatling(
-                reliabilityConfig.getTestEndTime(), reliabilityConfig.getStepDuration());
-
-        return testUtility.convertToTimestamp(times.get("startTime"), times.get("endTime"));
-    }
 
     private GrafanaService createGrafanaApi(Map<String, Long> timestamps, String path) {
         GrafanaService grafanaService = new GrafanaService(grafanaConfig);

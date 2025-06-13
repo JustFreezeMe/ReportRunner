@@ -9,6 +9,10 @@ public interface TimeSeriesDatabase {
     Map<String, Double> getOkValues();
     Map<String, Double> getKoValues();
     Map<String, Double> getPercentileValues();
+    Map<String, Double> getMinResponseTimeValues();
+    Map<String, Double> getMaxResponseTimeValues();
+    Map<String, Double> getStddevResponseTimeValues();
+    Map<String, Double> getCvResponseTimeValues();
 
     boolean queryContains(String mainKey, String key);
 
